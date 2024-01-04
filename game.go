@@ -8,23 +8,24 @@ import (
 	"github.com/eiannone/keyboard"
 )
 
-var board [3][3]string
-var currentPlayer int
+type Board [3][3]string
+
 var cursorX, cursorY int
 
-func initializeBoard() {
+func initializeBoard() Board {
+	var board Board
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			board[i][j] = "_"
 		}
 	}
-	currentPlayer = 1
 	cursorX, cursorY = 0, 0
+	return board
 }
 
-func printBoard() {
+func printBoard(board Board) {
 	clearScreen()
-	fmt.Println("Use arrow keys to move the cursor. Press Space to place your mark. \n")
+	fmt.Print("Use arrow keys to move the cursor. Press Space to place your mark. \n\n")
 	fmt.Println("   0   1   2")
 	for i := 0; i < 3; i++ {
 		fmt.Printf("%d ", i)
@@ -35,7 +36,7 @@ func printBoard() {
 				fmt.Printf(" %s  ", board[i][j])
 			}
 		}
-		fmt.Println("\n")
+		fmt.Print("\n\n")
 
 	}
 }
@@ -46,7 +47,7 @@ func clearScreen() {
 	cmd.Run()
 }
 
-func checkWin(player string) bool {
+func checkWin(player string, board Board) bool {
 	for i := 0; i < 3; i++ {
 		if board[i][0] == player && board[i][1] == player && board[i][2] == player {
 			return true
@@ -64,7 +65,7 @@ func checkWin(player string) bool {
 	return false
 }
 
-func isBoardFull() bool {
+func isBoardFull(board Board) bool {
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			if board[i][j] == "_" {
@@ -75,20 +76,23 @@ func isBoardFull() bool {
 	return true
 }
 
-func switchPlayer() {
-	if currentPlayer == 1 {
-		currentPlayer = 2
+func switchPlayer(currentPlayer *int) {
+	if *currentPlayer == 1 {
+		*currentPlayer = 2
 	} else {
-		currentPlayer = 1
+		*currentPlayer = 1
 	}
 }
 
 func main() {
-	initializeBoard()
+	var currentPlayer int
+	currentPlayer = 1
+	var board Board
+	board = initializeBoard()
 	keyboard.Open()
 	defer keyboard.Close()
 
-	printBoard()
+	printBoard(board)
 
 	for {
 		char, key, err := keyboard.GetKey()
@@ -120,21 +124,21 @@ func main() {
 					board[cursorX][cursorY] = "O"
 				}
 
-				if checkWin(board[cursorX][cursorY]) {
-					printBoard()
+				if checkWin(board[cursorX][cursorY], board) {
+					printBoard(board)
 					fmt.Printf("Player %d wins!\n", currentPlayer)
 					return
-				} else if isBoardFull() {
-					printBoard()
+				} else if isBoardFull(board) {
+					printBoard(board)
 					fmt.Println("It's a draw!")
 					return
 				}
 
-				switchPlayer()
+				switchPlayer(&currentPlayer)
 			}
 		} else if char == 'q' || char == 'Q' { // Condition to quit the game (Using keyboard strokes hence, CMD + C won't work.)
-			return 
+			return
 		}
-		printBoard()
+		printBoard(board)
 	}
 }
