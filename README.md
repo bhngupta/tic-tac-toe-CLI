@@ -2,6 +2,6 @@
 Tic-tac-toe command line interface game built in Golang
 
 
-# Todos
 
+# Todos
 1. Add Test (pending)
